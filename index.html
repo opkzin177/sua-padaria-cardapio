@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sua Padaria - Cardápio Lanchonete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1f1a;
+      --card: #142a23;
+      --accent: #d4af37;
+      --text: #f5f0e6;
+      --muted: #a8b5ad;
+      --border: #2a4038;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      background: linear-gradient(180deg, #0a1814 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .slogan {
+      margin-top: 0.8rem;
+      font-style: italic;
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+    .controls {
+      max-width: 1100px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+    #search {
+      flex: 1;
+      min-width: 220px;
+      max-width: 400px;
+      padding: 0.75rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+    #search:focus { border-color: var(--accent); }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent);
+      color: #0d1f1a;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+      padding: 0 1rem;
+    }
+    .category {
+      margin: 2.5rem 0 1.5rem;
+    }
+    .category h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.2rem;
+      display: inline-block;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .product {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .product:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .product-info { flex: 1; }
+    .product-code {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .product-name {
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0.2rem 0 0.3rem;
+    }
+    .product-price {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 600px) {
+      .logo { font-size: 1.9rem; }
+      .products { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">SUA PADARIA</div>
+    <div class="subtitle">LANCHONETE</div>
+    <div class="slogan">O prazer de cada dia.</div>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Buscar produto..." autocomplete="off">
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <main id="menu"></main>
+
+  <footer>
+    Cardápio online • Valores em R$ • Atualizado
+  </footer>
+
+  <script>
+    const menuData = [
+      {
+        category: "Lanches",
+        items: [
+          { code: "97", name: "Misto simples (presunto e queijo)", price: "9,99" },
+          { code: "98", name: "Misto completo (presunto, queijo e ovo)", price: "10,99" },
+          { code: "620", name: "Pão com peito de peru e mussarela", price: "10,99" },
+          { code: "621", name: "Pão com peito de peru e queijo minas", price: "11,99" },
+          { code: "622", name: "Pão com peito de peru, queijo minas e ovo", price: "13,99" },
+          { code: "623", name: "Pão com peito de peru, mussarela e ovo", price: "11,99" },
+          { code: "624", name: "Pão com mussarela e ovo", price: "9,99" },
+          { code: "625", name: "Pão com queijo minas e ovo", price: "10,99" },
+          { code: "170", name: "Pão com mussarela", price: "7,99" },
+          { code: "178", name: "Pão com queijo minas", price: "8,99" },
+          { code: "4435", name: "Pão com mortadela", price: "8,99" },
+          { code: "94", name: "Pão com ovo", price: "7,99" },
+          { code: "309", name: "Pão com requeijão", price: "6,99" },
+          { code: "95", name: "Pão com manteiga", price: "3,99" },
+          { code: "96", name: "Pão com manteiga na chapa", price: "4,99" }
+        ]
+      },
+      {
+        category: "Cafés e leite",
+        items: [
+          { code: "100", name: "Café grande 200 ml", price: "3,99" },
+          { code: "327", name: "Café expresso Nescafé", price: "7,99" },
+          { code: "328", name: "Café expresso duplo Nescafé", price: "10,99" },
+          { code: "331", name: "Capuccino Nescafé", price: "8,99" },
+          { code: "330", name: "Achocolatado Nescafé", price: "8,99" },
+          { code: "115", name: "Pingado 200 ml", price: "4,99" },
+          { code: "6560", name: "Leite 200 ml", price: "3,99" },
+          { code: "155", name: "Leite com Toddy ou Nescau 200 ml", price: "5,99" }
+        ]
+      },
+      {
+        category: "Cuscuz",
+        items: [
+          { code: "3003", name: "Simples", price: "9,99" },
+          { code: "3004", name: "Mussarela", price: "10,99" },
+          { code: "3005", name: "Queijo minas", price: "11,99" },
+          { code: "3006", name: "Presunto e mussarela", price: "12,99" },
+          { code: "3007", name: "Peito de peru e mussarela", price: "13,99" },
+          { code: "3008", name: "Peito de peru, queijo minas e ovo", price: "15,99" },
+          { code: "3009", name: "Peito de peru", price: "11,99" },
+          { code: "3010", name: "Peito de peru, mussarela e ovo", price: "15,99" },
+          { code: "3011", name: "Presunto, mussarela e ovo", price: "14,99" },
+          { code: "3014", name: "Peito de peru e ovo", price: "12,99" },
+          { code: "4458", name: "Carne seca", price: "17,99" },
+          { code: "4459", name: "Carne seca e queijo minas", price: "19,99" },
+          { code: "1002", name: "Carne seca e mussarela", price: "18,99" },
+          { code: "4460", name: "Frango", price: "15,99" },
+          { code: "4461", name: "Frango e mussarela", price: "16,99" }
+        ]
+      },
+      {
+        category: "Tapiocas salgadas",
+        items: [
+          { code: "103", name: "Simples", price: "8,99" },
+          { code: "216", name: "Mussarela", price: "9,99" },
+          { code: "626", name: "Queijo minas", price: "11,99" },
+          { code: "308", name: "Presunto e mussarela", price: "11,99" },
+          { code: "627", name: "Peito de peru e queijo minas", price: "13,99" },
+          { code: "282", name: "Peito de peru", price: "11,99" },
+          { code: "629", name: "Peito de peru e mussarela", price: "14,99" },
+          { code: "4000", name: "Frango", price: "14,99" },
+          { code: "4434", name: "Frango e requeijão", price: "16,99" },
+          { code: "4442", name: "Frango e queijo minas", price: "17,99" },
+          { code: "4001", name: "Carne seca", price: "19,99" },
+          { code: "4443", name: "Carne seca e queijo minas", price: "21,99" }
+        ]
+      },
+      {
+        category: "Ovos e omeletes",
+        items: [
+          { code: "4009", name: "Omelete simples", price: "9,99" },
+          { code: "4012", name: "Omelete com mussarela", price: "10,99" },
+          { code: "4003", name: "Ovos mexidos", price: "8,99" },
+          { code: "4004", name: "Tomate e cebola", price: "10,99" },
+          { code: "4005", name: "Presunto, mussarela, tomate e cebola", price: "14,99" },
+          { code: "4006", name: "Peito de peru, queijo minas, tomate e cebola", price: "17,99" },
+          { code: "4007", name: "Carne seca, tomate e cebola", price: "18,99" },
+          { code: "4449", name: "Frango, tomate e cebola", price: "16,99" }
+        ]
+      },
+      {
+        category: "Crepiocas",
+        items: [
+          { code: "4008", name: "Tradicional", price: "10,99" },
+          { code: "4451", name: "Mussarela", price: "12,99" },
+          { code: "4010", name: "Banana, aveia e mel", price: "13,99" },
+          { code: "4011", name: "Peito de peru e queijo minas", price: "16,99" },
+          { code: "4452", name: "Carne seca", price: "17,99" },
+          { code: "4453", name: "Carne seca com queijo minas", price: "18,99" },
+          { code: "4454", name: "Carne seca com requeijão", price: "18,99" },
+          { code: "4457", name: "Frango com mussarela", price: "16,99" }
+        ]
+      },
+      {
+        category: "Acréscimos para omeletes e crepiocas",
+        items: [
+          { code: "5590", name: "Bacon", price: "5,99" },
+          { code: "5591", name: "Carne seca", price: "8,99" },
+          { code: "5592", name: "Frango", price: "7,99" },
+          { code: "5593", name: "Alface e tomate", price: "3,99" },
+          { code: "5594", name: "Queijo minas", price: "4,99" },
+          { code: "5595", name: "Peito de peru", price: "3,99" },
+          { code: "5596", name: "Mussarela", price: "3,99" },
+          { code: "5597", name: "Presunto", price: "3,99" },
+          { code: "5599", name: "Ovo", price: "2,99" },
+          { code: "8105", name: "Mortadela", price: "2,99" }
+        ]
+      },
+      {
+        category: "Sucos de polpa",
+        items: [
+          { code: "876", name: "Acerola", price: "10,99" },
+          { code: "884", name: "Maracujá", price: "10,99" },
+          { code: "886", name: "Morango", price: "10,99" },
+          { code: "883", name: "Manga", price: "10,99" },
+          { code: "879", name: "Caju", price: "10,99" },
+          { code: "881", name: "Goiaba", price: "10,99" },
+          { code: "882", name: "Graviola", price: "10,99" }
+        ]
+      },
+      {
+        category: "Sucos especiais",
+        items: [
+          { code: "", name: "Laranja", price: "10,90" },
+          { code: "", name: "Laranja com morango", price: "11,99" },
+          { code: "", name: "Laranja com acerola", price: "11,99" },
+          { code: "", name: "Laranja com mamão", price: "10,90" },
+          { code: "4462", name: "Abacaxi com hortelã", price: "11,99" }
+        ]
+      },
+      {
+        category: "Cremes",
+        items: [
+          { code: "888", name: "Acerola", price: "10,99" },
+          { code: "889", name: "Abacaxi", price: "10,99" },
+          { code: "890", name: "Cajá", price: "10,99" },
+          { code: "893", name: "Caju", price: "10,99" },
+          { code: "894", name: "Cupuaçu", price: "10,99" },
+          { code: "895", name: "Goiaba", price: "10,99" },
+          { code: "896", name: "Graviola", price: "10,99" },
+          { code: "897", name: "Manga", price: "10,99" },
+          { code: "898", name: "Morango", price: "10,99" },
+          { code: "1361", name: "Mamão e banana", price: "11,99" },
+          { code: "1788", name: "Mamão e morango", price: "11,99" },
+          { code: "183", name: "Banana", price: "10,99" },
+          { code: "1789", name: "Banana e maçã", price: "11,99" },
+          { code: "1790", name: "Banana, maçã e aveia", price: "12,99" },
+          { code: "", name: "Maracujá", price: "10,90" },
+          { code: "", name: "Açaí com banana", price: "10,90" }
+        ]
+      }
+    ];
+
+    const menuEl = document.getElementById('menu');
+    const searchEl = document.getElementById('search');
+    const filtersEl = document.getElementById('filters');
+
+    let activeCategory = 'Todos';
+
+    function renderFilters() {
+      const cats = ['Todos', ...menuData.map(c => c.category)];
+      filtersEl.innerHTML = cats.map(cat => 
+        `<button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
+      ).join('');
+      filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.cat;
+          renderFilters();
+          renderMenu();
+        });
+      });
+    }
+
+    function renderMenu() {
+      const q = searchEl.value.toLowerCase().trim();
+      menuEl.innerHTML = '';
+      menuData.forEach(cat => {
+        if (activeCategory !== 'Todos' && cat.category !== activeCategory) return;
+        const filtered = cat.items.filter(item => 
+          item.name.toLowerCase().includes(q) || (item.code && item.code.includes(q))
+        );
+        if (filtered.length === 0) return;
+        const section = document.createElement('section');
+        section.className = 'category';
+        section.innerHTML = `<h2>${cat.category}</h2><div class="products"></div>`;
+        const products = section.querySelector('.products');
+        filtered.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'product';
+          div.innerHTML = `
+            <div class="product-info">
+              ${item.code ? `<div class="product-code">Cód. ${item.code}</div>` : ''}
+              <div class="product-name">${item.name}</div>
+            </div>
+            <div class="product-price">R$ ${item.price}</div>
+          `;
+          products.appendChild(div);
+        });
+        menuEl.appendChild(section);
+      });
+      if (menuEl.children.length === 0) {
+        menuEl.innerHTML = '<p style="text-align:center;color:var(--muted);margin:3rem 0;">Nenhum produto encontrado.</p>';
+      }
+    }
+
+    searchEl.addEventListener('input', renderMenu);
+    renderFilters();
+    renderMenu();
+  </script>
+</body>
+</html>
